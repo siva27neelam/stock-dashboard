@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Dashboard - TradingView Widgets</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         * {
@@ -69,11 +69,12 @@
 
         .country-switch {
             background: #0f172a;
-            border: 1px solid #334155;
+            border: 2px solid #0d9488;
             border-radius: 8px;
             padding: 4px;
             display: flex;
             gap: 4px;
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.2);
         }
 
         .country-btn {
@@ -209,9 +210,9 @@
         }
 
         .icon-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
             cursor: pointer;
             padding: 6px 12px;
             border-radius: 6px;
