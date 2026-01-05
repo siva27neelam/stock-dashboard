@@ -191,8 +191,14 @@
 
         .stock-header {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
+        }
+
+        .stock-title {
+            font-weight: bold;
+            font-size: 16px;
         }
 
 
@@ -388,7 +394,8 @@
             var symbol = input.value.trim().toUpperCase();
             if (!symbol) return;
             hideError();
-            stocks[currentCountry].push({ symbol: symbol, name: symbol });
+            // Add to beginning of array (unshift) for most recent first
+            stocks[currentCountry].unshift({ symbol: symbol, name: symbol, favorite: false });
             saveToJSONBin().then(() => {
                 renderStocks();
                 input.value = '';
@@ -400,6 +407,14 @@
             saveToJSONBin().then(renderStocks);
         }
 
+        function toggleFavorite(symbol) {
+            var stock = stocks[currentCountry].find(s => s.symbol === symbol);
+            if (stock) {
+                stock.favorite = !stock.favorite;
+                saveToJSONBin().then(renderStocks);
+            }
+        }
+
         function renderStocks() {
             var grid = document.getElementById('stockGrid');
             var emptyState = document.getElementById('emptyState');
@@ -407,13 +422,29 @@
             if (currentStocks.length === 0) { grid.innerHTML = ''; emptyState.style.display = 'block'; document.getElementById('emptyCountry').textContent = currentCountry; return; }
             emptyState.style.display = 'none';
             grid.innerHTML = '';
-            currentStocks.forEach(stock => {
+            // Sort: Favorites first, then preserve existing order (which is most recent first due to unshift)
+            // We create a shallow copy to sort so we don't mutate the original array order permanently if we don't want to,
+            // but actually, for display, we just want to prioritize favorites.
+            // If we want "most recent additions" to be first, the array is already in that order (if we use unshift).
+            // So we just need to stable sort by favorite.
+            var displayStocks = [...currentStocks].sort((a, b) => {
+                if (a.favorite === b.favorite) return 0; // Keep original order (recency)
+                return a.favorite ? -1 : 1; // Favorites first
+            });
+
+            displayStocks.forEach(stock => {
                 var card = document.createElement('div'); card.className = 'stock-card';
+                var starClass = stock.favorite ? 'fill: #fbbf24; color: #fbbf24;' : '';
+
                 card.innerHTML = `
             <div class="stock-header">
+                <div class="stock-title">${stock.name}</div>
                 <div class="stock-actions">
+                    <button class="icon-btn" onclick="toggleFavorite('${stock.symbol}')" title="Toggle Favorite">
+                        <i data-lucide="star" style="width: 16px; height: 16px; ${starClass}"></i>
+                    </button>
                     <button class="icon-btn delete" onclick="removeStock('${stock.symbol}')" title="Remove Stock">
-                        <i data-lucide="trash-2" style="width: 16px; height: 16px; margin-right: 4px;"></i> Remove
+                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
                     </button>
                 </div>
             </div>
