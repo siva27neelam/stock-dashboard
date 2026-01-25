@@ -1,0 +1,88 @@
+{
+  "stocks": {
+    "US": [
+      {
+        "symbol": "NVDA",
+        "name": "NVIDIA Corporation",
+        "favorite": true,
+        "addedAt": "2024-03-20T10:00:00.000Z"
+      },
+      {
+        "symbol": "AAPL",
+        "name": "Apple Inc.",
+        "favorite": true,
+        "addedAt": "2024-03-20T10:01:00.000Z"
+      },
+      {
+        "symbol": "TSLA",
+        "name": "Tesla, Inc.",
+        "favorite": false,
+        "addedAt": "2024-03-20T10:02:00.000Z"
+      },
+      {
+        "symbol": "BTCUSD",
+        "name": "Bitcoin / US Dollar",
+        "favorite": false,
+        "addedAt": "2024-03-20T10:03:00.000Z"
+      }
+    ],
+    "India": [
+      {
+        "symbol": "DRREDDY",
+        "name": "DRREDDY",
+        "favorite": true,
+        "addedAt": "2026-01-25T22:15:34.335Z"
+      },
+      {
+        "symbol": "RELIANCE",
+        "name": "Reliance Industries",
+        "favorite": false,
+        "addedAt": "2024-03-20T10:04:00.000Z"
+      },
+      {
+        "symbol": "TCS",
+        "name": "TCS",
+        "favorite": false,
+        "addedAt": "2024-03-20T10:05:00.000Z"
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": "1769379078296",
+      "stock": "NVDA",
+      "message": "AI compute demand hits all-time high; resistance at $950 broken.",
+      "createdTimestamp": "2026-01-25T22:11:18.296Z",
+      "actionedTimestamp": "2026-01-25T22:13:15.622Z",
+      "archived": true,
+      "archivedTimestamp": "2026-01-25T22:13:19.127Z"
+    },
+    {
+      "id": "1769379019496",
+      "stock": "NVDA",
+      "message": "AI compute demand hits all-time high; resistance at $950 broken.",
+      "createdTimestamp": "2026-01-25T22:10:19.496Z",
+      "actionedTimestamp": "2026-01-25T22:10:44.911Z",
+      "archived": true,
+      "archivedTimestamp": "2026-01-25T22:11:08.898Z"
+    },
+    {
+      "id": "1",
+      "stock": "NVDA",
+      "message": "AI compute demand hits all-time high; resistance at $950 broken.",
+      "createdTimestamp": "2024-03-20T09:00:00.000Z",
+      "actionedTimestamp": "2026-01-25T22:01:29.686Z",
+      "archived": true,
+      "archivedTimestamp": "2026-01-25T22:08:33.700Z"
+    },
+    {
+      "id": "2",
+      "stock": "RELIANCE",
+      "message": "Strong quarterly results expected; RSI indicating oversold conditions.",
+      "createdTimestamp": "2024-03-20T08:30:00.000Z",
+      "actionedTimestamp": "2026-01-25T22:01:36.799Z",
+      "archived": true,
+      "archivedTimestamp": "2026-01-25T22:10:50.876Z"
+    }
+  ]
+}

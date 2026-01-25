@@ -36,7 +36,7 @@ for alert in "${alerts[@]}"; do
 
     # Check if response contains success
     if echo "$response" | grep -q '"success":true'; then
-        stock=$(echo "$alert" | grep -o '"ticker":"[^"]*' | cut -d'"' -f4)
+        stock=$(echo "$alert" | grep -o '"ticker": "[^"]*' | cut -d'"' -f4)
         echo "   ✅ Alert for $stock created successfully"
     else
         echo "   ❌ Failed to create alert"
