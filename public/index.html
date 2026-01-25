@@ -708,8 +708,8 @@
             // --- Initialization ---
             document.addEventListener('DOMContentLoaded', () => {
                 initIcons();
-                initSSE();
-                loadAllData();
+                loadAllData(true); // Initial load
+                initSSE(); // Start polling sync
 
                 document.getElementById('addBtn').addEventListener('click', addStock);
                 document.getElementById('stockInput').addEventListener('keypress', e => {
@@ -736,22 +736,42 @@
 
             // --- Data Handling ---
 
-            async function loadAllData() {
+            async function loadAllData(isInitial = false) {
                 try {
                     const [stocksRes, alertsRes] = await Promise.all([
                         fetch('/api/stocks'),
                         fetch('/api/alerts')
                     ]);
-                    stocksData = await stocksRes.json();
-                    allAlerts = (await alertsRes.json()).alerts;
 
-                    renderStocks();
+                    const newStocks = await stocksRes.json();
+                    const alertsJson = await alertsRes.json();
+                    const newAlerts = alertsJson.alerts || [];
+
+                    // 1. Detect New Alerts for Voice/Toasts
+                    if (!isInitial && allAlerts.length > 0) {
+                        const existingIds = new Set(allAlerts.map(a => a.id));
+                        const freshAlerts = newAlerts.filter(a => !existingIds.has(a.id));
+                        freshAlerts.reverse().forEach(triggerAlertNotification);
+                    }
+
+                    // 2. Only re-render stocks if list changed (to avoid TV widget flicker)
+                    const stocksChanged = JSON.stringify(stocksData) !== JSON.stringify(newStocks);
+                    stocksData = newStocks;
+                    if (stocksChanged || isInitial) {
+                        renderStocks();
+                    }
+
+                    // 3. Always update alerts UI
+                    allAlerts = newAlerts;
                     updateAlertsUI();
 
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
+                    if (isInitial) {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('app').style.display = 'block';
+                    }
                 } catch (err) {
-                    showToast('Failed to sync with edge API', 'error');
+                    console.error('Sync error:', err);
+                    if (isInitial) showToast('Failed to sync with edge API', 'error');
                 }
             }
 
@@ -804,10 +824,11 @@
             // --- Real-time (Polling Fallback for Cloudflare) ---
 
             function initSSE() {
-                // Simplified for Cloudflare: 30s Background Sync
+                // Cloudflare Pages Functions are stateless - using 4s high-frequency polling 
+                // for real-time feel without the complexity of WebSockets/Durable Objects.
                 setInterval(() => {
-                    loadAllData();
-                }, 30000);
+                    loadAllData(false);
+                }, 4000);
             }
 
             function triggerAlertNotification(alert) {
