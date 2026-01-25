@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard - TradingView Widgets</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom right, #0f172a, #1e293b);
+            min-height: 100vh;
+            color: white;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 16px 24px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header-text {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(13, 148, 136, 0.2);
+        }
+
+        .header-text h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .country-switch {
+            background: #0f172a;
+            border: 2px solid #0d9488;
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.2);
+        }
+
+        .country-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .country-btn.active.us,
+        .country-btn.active.india {
+            background: #0d9488;
+            color: white;
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.3);
+        }
+
+        .country-btn:not(.active) {
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        .country-btn:not(.active):hover {
+            color: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .stock-input {
+            width: 200px;
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .stock-input:focus {
+            outline: 2px solid #2563eb;
+        }
+
+        .add-btn {
+            background: #2563eb;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .refresh-icon-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .refresh-icon-btn:hover {
+            color: white;
+            background: #334155;
+        }
+
+        .error-msg {
+            color: #f87171;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .help-text {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 16px;
+        }
+
+        .stock-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .stock-card:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stock-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+
+
+        .stock-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .icon-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .icon-btn.delete:hover {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #94a3b8;
+            font-size: 18px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-size: 24px;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width:768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stock-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .alert-item {
+                flex-direction: column;
+            }
+
+            .alert-action-btn {
+                width: 100%;
+            }
+        }
+
+        .alerts-btn {
+            background: #f59e0b;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .alerts-btn:hover {
+            background: #d97706;
+        }
+
+        .alerts-badge {
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .modal-overlay {
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: none;
+        }
+
+        .alert-item {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .alert-item.actioned {
+            opacity: 0.6;
+            border-color: #10b981;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-stock {
+            font-weight: bold;
+            font-size: 16px;
+            color: #f59e0b;
+            margin-bottom: 8px;
+        }
+
+        .alert-message {
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .alert-timestamp {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .alert-action-timestamp {
+            font-size: 12px;
+            color: #10b981;
+            margin-top: 4px;
+        }
+
+        .alert-action-btn {
+            background: #10b981;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+
+        .alert-action-btn:hover:not(:disabled) {
+            background: #059669;
+        }
+
+        .alert-action-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .empty-alerts {
+            text-align: center;
+            padding: 48px 24px;
+            color: #94a3b8;
+        }
+
+        /* Alerts Full Page Styles */
+        .alerts-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom right, #0f172a, #1e293b);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        .alerts-page.active {
+            display: flex;
+        }
+
+        .alerts-header {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .alerts-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .alerts-title-section h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn:hover {
+            color: white;
+            background: #334155;
+        }
+
+        .alerts-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .select-all-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .select-all-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #0d9488;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .delete-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .alerts-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .alert-item-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .alert-item-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 16px;
+            cursor: pointer;
+            accent-color: #0d9488;
+        }
+
+        .alerts-pagination {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            background: #0d9488;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #0f766e;
+        }
+
+        .pagination-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: #cbd5e1;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .alerts-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .alerts-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .delete-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .alert-item-wrapper {
+                flex-direction: column;
+            }
+
+            .alert-item-wrapper input[type="checkbox"] {
+                margin-top: 0;
+            }
+
+            .alert-item {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading" class="loading">Loading your stocks...</div>
+
+    <div id="app" class="container" style="display:none;">
+        <div class="header">
+            <div class="header-text">
+                <img src="logo.png" alt="Logo" class="app-logo">
+                <h1>Stock Dashboard</h1>
+            </div>
+            <div class="header-controls">
+                <div class="input-group">
+                    <input type="text" id="stockInput" class="stock-input" placeholder="Symbol (e.g. AAPL)">
+                    <button class="add-btn" id="addBtn"><i data-lucide="plus"></i> Add</button>
+                </div>
+
+                <div class="country-switch">
+                    <button class="country-btn active us" data-country="US">
+                        <i data-lucide="globe"></i> US
+                    </button>
+                    <button class="country-btn india" data-country="India">
+                        <i data-lucide="globe"></i> India
+                    </button>
+                </div>
+
+                <button class="refresh-icon-btn" id="refreshAllBtn" title="Refresh All"><i
+                        data-lucide="refresh-cw"></i></button>
+                <button class="alerts-btn" id="alertsBtn" title="View Alerts">
+                    <i data-lucide="bell"></i> Alerts <span class="alerts-badge" id="alertsBadge" style="display:none;">0</span>
+                </button>
+                <div id="syncStatus" style="color: #94a3b8;"></div>
+            </div>
+        </div>
+        <div id="errorMsg" class="error-msg" style="display:none; margin-bottom: 16px; padding: 0 16px;"></div>
+
+        <div class="stock-grid" id="stockGrid"></div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+            No stocks tracked for <span id="emptyCountry"></span> yet. Add one above!
+        </div>
+    </div>
+
+    <!-- Alerts Full Page -->
+    <div id="alertsPage" class="alerts-page" style="display:none;">
+        <div class="alerts-header">
+            <div class="alerts-title-section">
+                <button class="back-btn" id="backFromAlertsBtn" title="Back"><i data-lucide="arrow-left"></i></button>
+                <h1>Trading Alerts</h1>
+            </div>
+            <div class="alerts-actions">
+                <label class="select-all-label">
+                    <input type="checkbox" id="selectAllCheckbox">
+                    <span>Select All (Page)</span>
+                </label>
+                <button class="delete-btn" id="deleteSelectedBtn" style="display:none;" title="Delete Selected">
+                    <i data-lucide="trash-2"></i> Delete Selected
+                </button>
+                <button class="delete-btn" id="deleteAllPageBtn" style="display:none;" title="Delete All Current Page">
+                    <i data-lucide="trash"></i> Delete All (Page)
+                </button>
+            </div>
+        </div>
+
+        <div class="alerts-content" id="alertsContainer">
+            <div class="empty-alerts">Loading alerts...</div>
+        </div>
+
+        <div class="alerts-pagination">
+            <button class="pagination-btn" id="prevPageBtn"><i data-lucide="chevron-left"></i> Previous</button>
+            <span class="pagination-info" id="paginationInfo">Page 1</span>
+            <button class="pagination-btn" id="nextPageBtn">Next <i data-lucide="chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        var MASTER_KEY = '$2a$10$ilwfX9jlaVc35Jk7ikMGZOeSw2BPCC1Azu1/QJqWRXWr42DsKDiQa';
+        var ACCESS_KEY = '$2a$10$B.MfltIsYbuMbVyKNTp/AOcFRPPHltKzNuA4Wa/SLNxnbIBF5HJaG';
+        var BIN_NAME = 'stock-dashboard-data';
+
+        var currentCountry = 'US';
+        var stocks = { US: [], India: [] };
+        var binId = '695c0606ae596e708fc6f5b9';
+        var syncing = false;
+
+        function initIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initIcons();
+            loadFromJSONBin().then(function () {
+                setupEventListeners();
+                renderStocks();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                initIcons();
+            });
+        });
+
+        function setupEventListeners() {
+            document.querySelectorAll('.country-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    currentCountry = this.getAttribute('data-country');
+                    updateCountryUI();
+                    renderStocks();
+                });
+            });
+            document.getElementById('addBtn').addEventListener('click', addStock);
+            document.getElementById('stockInput').addEventListener('keypress', e => { if (e.key === 'Enter') addStock(); });
+            document.getElementById('refreshAllBtn').addEventListener('click', renderStocks);
+        }
+
+        function updateCountryUI() {
+            document.querySelectorAll('.country-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.country-btn[data-country="' + currentCountry + '"]').classList.add('active');
+
+            document.getElementById('stockInput').placeholder = currentCountry === 'US'
+                ? 'Symbol (e.g. AAPL)'
+                : 'Symbol (e.g. TCS, NIFTYBEES)';
+        }
+
+        function loadFromJSONBin() {
+            return fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: { 'X-Access-Key': ACCESS_KEY } })
+                .then(r => r.json())
+                .then(data => {
+                    stocks = data.record;
+                    updateSyncStatus(true);
+                })
+                .catch(err => {
+                    console.error(err);
+                    // If the bin is empty or new, we might get a specific structure or error, but usually it returns the record.
+                    // If it fails, we might want to initialize with empty data but NOT save immediately to avoid overwriting if it was a network error.
+                    showError('Failed to load data from cloud');
+                });
+        }
+
+        function saveToJSONBin() {
+            if (!binId) return Promise.resolve();
+            syncing = true; updateSyncStatus(false);
+            return fetch('https://api.jsonbin.io/v3/b/' + binId, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Access-Key': ACCESS_KEY }, body: JSON.stringify(stocks) })
+                .then(() => { syncing = false; updateSyncStatus(true); })
+                .catch(err => { console.error(err); showError('Failed to sync data'); syncing = false; });
+        }
+
+        function updateSyncStatus(synced) {
+            var statusEl = document.getElementById('syncStatus');
+            if (syncing) {
+                statusEl.innerHTML = '<i data-lucide="refresh-cw" class="spin"></i>';
+            } else {
+                statusEl.innerHTML = '';
+            }
+            initIcons();
+        }
+
+        function addStock() {
+            var input = document.getElementById('stockInput');
+            var symbol = input.value.trim().toUpperCase();
+            if (!symbol) return;
+            hideError();
+            // Add to beginning of array (unshift) for most recent first
+            stocks[currentCountry].unshift({ symbol: symbol, name: symbol, favorite: false });
+            saveToJSONBin().then(() => {
+                renderStocks();
+                input.value = '';
+            });
+        }
+
+        function removeStock(symbol) {
+            stocks[currentCountry] = stocks[currentCountry].filter(s => s.symbol !== symbol);
+            saveToJSONBin().then(renderStocks);
+
+        }
+
+        function toggleFavorite(symbol) {
+            var stock = stocks[currentCountry].find(s => s.symbol === symbol);
+            if (stock) {
+                stock.favorite = !stock.favorite;
+                saveToJSONBin().then(renderStocks);
+            }
+        }
+
+        function renderStocks() {
+            var grid = document.getElementById('stockGrid');
+            var emptyState = document.getElementById('emptyState');
+            var currentStocks = stocks[currentCountry];
+            if (currentStocks.length === 0) { grid.innerHTML = ''; emptyState.style.display = 'block'; document.getElementById('emptyCountry').textContent = currentCountry; return; }
+            emptyState.style.display = 'none';
+            grid.innerHTML = '';
+            // Sort: Favorites first, then preserve existing order (which is most recent first due to unshift)
+            // We create a shallow copy to sort so we don't mutate the original array order permanently if we don't want to,
+            // but actually, for display, we just want to prioritize favorites.
+            // If we want "most recent additions" to be first, the array is already in that order (if we use unshift).
+            // So we just need to stable sort by favorite.
+            var displayStocks = [...currentStocks].sort((a, b) => {
+                if (a.favorite === b.favorite) return 0; // Keep original order (recency)
+                return a.favorite ? -1 : 1; // Favorites first
+            });
+
+            displayStocks.forEach(stock => {
+                var card = document.createElement('div'); card.className = 'stock-card';
+                var starClass = stock.favorite ? 'fill: #fbbf24; color: #fbbf24;' : '';
+
+                card.innerHTML = `
+            <div class="stock-header">
+                <div class="stock-title">${stock.name}</div>
+                <div class="stock-actions">
+                    <button class="icon-btn" onclick="toggleFavorite('${stock.symbol}')" title="Toggle Favorite">
+                        <i data-lucide="star" style="width: 16px; height: 16px; ${starClass}"></i>
+                    </button>
+                    <button class="icon-btn delete" onclick="removeStock('${stock.symbol}')" title="Remove Stock">
+                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="tv-${stock.symbol}" style="height:320px;"></div>
+        `;
+                grid.appendChild(card);
+                var symbolParam = stock.symbol;
+                var timezone = currentCountry === 'India' ? 'Asia/Kolkata' : 'America/New_York';
+                new TradingView.widget({
+                    container_id: 'tv-' + stock.symbol,
+                    width: '100%',
+                    height: 320,
+                    symbol: symbolParam,
+                    interval: 'D',
+                    timezone: timezone,
+                    theme: 'dark',
+                    style: '2',
+                    locale: 'en',
+                    toolbar_bg: '#1e293b',
+                    enable_publishing: false,
+                    hide_top_toolbar: false,
+                    allow_symbol_change: false,
+                    studies: [
+                        'MASimple@tv-basicstudies',
+                        'RSI@tv-basicstudies',
+                        'MACD@tv-basicstudies'
+                    ]
+                });
+            });
+            initIcons();
+        }
+
+        function showError(msg) { var e = document.getElementById('errorMsg'); e.textContent = msg; e.style.display = 'block'; }
+        function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
+
+        // Alerts functionality with pagination
+        var allAlerts = [];
+        var currentPage = 1;
+        const ALERTS_PER_PAGE = 10;
+        var selectedAlertIds = new Set();
+
+        function openAlertsPage() {
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('alertsPage').classList.add('active');
+            loadAlerts();
+        }
+
+        function closeAlertsPage() {
+            document.getElementById('alertsPage').classList.remove('active');
+            document.getElementById('app').style.display = 'block';
+            currentPage = 1;
+            selectedAlertIds.clear();
+        }
+
+        function loadAlerts() {
+            fetch('/alerts')
+                .then(r => r.json())
+                .then(data => {
+                    allAlerts = data.alerts || [];
+                    currentPage = 1;
+                    renderAlertsPage();
+                    updateAlertsBadge();
+                })
+                .catch(err => {
+                    console.error('Error loading alerts:', err);
+                    document.getElementById('alertsContainer').innerHTML = '<div class="empty-alerts">Failed to load alerts</div>';
+                });
+        }
+
+        function renderAlertsPage() {
+            var container = document.getElementById('alertsContainer');
+
+            if (allAlerts.length === 0) {
+                container.innerHTML = '<div class="empty-alerts">No alerts yet</div>';
+                updatePaginationButtons();
+                return;
+            }
+
+            var startIdx = (currentPage - 1) * ALERTS_PER_PAGE;
+            var endIdx = startIdx + ALERTS_PER_PAGE;
+            var pageAlerts = allAlerts.slice(startIdx, endIdx);
+
+            container.innerHTML = '';
+            pageAlerts.forEach(alert => {
+                var alertEl = document.createElement('div');
+                alertEl.className = 'alert-item-wrapper';
+
+                var actionedText = alert.actionedTimestamp
+                    ? `<div class="alert-action-timestamp">✓ Actioned on: ${new Date(alert.actionedTimestamp).toLocaleString()}</div>`
+                    : '';
+
+                alertEl.innerHTML = `
+                    <input type="checkbox" class="alert-checkbox" data-alert-id="${alert.id}" onchange="updateDeleteButtons()">
+                    <div class="alert-item ${alert.actionedTimestamp ? 'actioned' : ''}">
+                        <div class="alert-content">
+                            <div class="alert-stock">${alert.stock}</div>
+                            <div class="alert-message">${alert.message}</div>
+                            <div class="alert-timestamp">Created: ${new Date(alert.createdTimestamp).toLocaleString()}</div>
+                            ${actionedText}
+                        </div>
+                        <button class="alert-action-btn" onclick="markAlertActioned('${alert.id}')" ${alert.actionedTimestamp ? 'disabled' : ''}>
+                            ${alert.actionedTimestamp ? 'Actioned' : 'Mark Actioned'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(alertEl);
+            });
+
+            updatePaginationButtons();
+            updateSelectAllCheckbox();
+            initIcons();
+        }
+
+        function updatePaginationButtons() {
+            var totalPages = Math.ceil(allAlerts.length / ALERTS_PER_PAGE);
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+            document.getElementById('paginationInfo').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        }
+
+        function goToPreviousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                selectedAlertIds.clear();
+                renderAlertsPage();
+            }
+        }
+
+        function goToNextPage() {
+            var totalPages = Math.ceil(allAlerts.length / ALERTS_PER_PAGE);
+            if (currentPage < totalPages) {
+                currentPage++;
+                selectedAlertIds.clear();
+                renderAlertsPage();
+            }
+        }
+
+        function updateSelectAllCheckbox() {
+            var checkboxes = document.querySelectorAll('.alert-checkbox');
+            var allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+            document.getElementById('selectAllCheckbox').checked = allChecked;
+        }
+
+        function toggleSelectAll() {
+            var checkbox = document.getElementById('selectAllCheckbox');
+            var checkboxes = document.querySelectorAll('.alert-checkbox');
+
+            selectedAlertIds.clear();
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    selectedAlertIds.add(cb.dataset.alertId);
+                }
+            });
+            updateDeleteButtons();
+        }
+
+        function updateDeleteButtons() {
+            var checkboxes = document.querySelectorAll('.alert-checkbox');
+            selectedAlertIds.clear();
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedAlertIds.add(cb.dataset.alertId);
+                }
+            });
+
+            var deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            var deleteAllPageBtn = document.getElementById('deleteAllPageBtn');
+
+            deleteSelectedBtn.style.display = selectedAlertIds.size > 0 ? 'flex' : 'none';
+            deleteAllPageBtn.style.display = document.querySelectorAll('.alert-checkbox').length > 0 ? 'flex' : 'none';
+
+            updateSelectAllCheckbox();
+        }
+
+        function deleteSelectedAlerts() {
+            if (selectedAlertIds.size === 0) return;
+
+            if (!confirm(`Delete ${selectedAlertIds.size} selected alert(s)?`)) return;
+
+            var deletePromises = Array.from(selectedAlertIds).map(id => {
+                return fetch(`/alerts/${id}/delete`, { method: 'DELETE' });
+            });
+
+            Promise.all(deletePromises)
+                .then(() => {
+                    loadAlerts();
+                })
+                .catch(err => {
+                    console.error('Error deleting alerts:', err);
+                    alert('Failed to delete some alerts');
+                });
+        }
+
+        function deleteAllPageAlerts() {
+            var pageCheckboxes = document.querySelectorAll('.alert-checkbox');
+            if (pageCheckboxes.length === 0) return;
+
+            if (!confirm(`Delete all ${pageCheckboxes.length} alert(s) on this page?`)) return;
+
+            var deletePromises = Array.from(pageCheckboxes).map(cb => {
+                return fetch(`/alerts/${cb.dataset.alertId}/delete`, { method: 'DELETE' });
+            });
+
+            Promise.all(deletePromises)
+                .then(() => {
+                    loadAlerts();
+                })
+                .catch(err => {
+                    console.error('Error deleting alerts:', err);
+                    alert('Failed to delete some alerts');
+                });
+        }
+
+        function markAlertActioned(alertId) {
+            fetch(`/alerts/${alertId}/action`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    loadAlerts();
+                }
+            })
+            .catch(err => console.error('Error marking alert actioned:', err));
+        }
+
+        function updateAlertsBadge() {
+            var unactionedCount = allAlerts.filter(a => !a.actionedTimestamp).length;
+            var badge = document.getElementById('alertsBadge');
+            if (unactionedCount > 0) {
+                badge.textContent = unactionedCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // Setup alerts event listeners
+        function setupAlertsEventListeners() {
+            var alertsBtn = document.getElementById('alertsBtn');
+            var backBtn = document.getElementById('backFromAlertsBtn');
+            var selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            var deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            var deleteAllPageBtn = document.getElementById('deleteAllPageBtn');
+            var prevPageBtn = document.getElementById('prevPageBtn');
+            var nextPageBtn = document.getElementById('nextPageBtn');
+
+            if (alertsBtn) alertsBtn.addEventListener('click', openAlertsPage);
+            if (backBtn) backBtn.addEventListener('click', closeAlertsPage);
+            if (selectAllCheckbox) selectAllCheckbox.addEventListener('change', toggleSelectAll);
+            if (deleteSelectedBtn) deleteSelectedBtn.addEventListener('click', deleteSelectedAlerts);
+            if (deleteAllPageBtn) deleteAllPageBtn.addEventListener('click', deleteAllPageAlerts);
+            if (prevPageBtn) prevPageBtn.addEventListener('click', goToPreviousPage);
+            if (nextPageBtn) nextPageBtn.addEventListener('click', goToNextPage);
+        }
+
+        // Initialize alerts after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setupAlertsEventListeners();
+                loadAlerts();
+            });
+        } else {
+            setupAlertsEventListeners();
+            loadAlerts();
+        }
+
+    </script>
+</body>
+
+</html>

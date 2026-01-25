@@ -406,6 +406,7 @@
         function removeStock(symbol) {
             stocks[currentCountry] = stocks[currentCountry].filter(s => s.symbol !== symbol);
             saveToJSONBin().then(renderStocks);
+
         }
 
         function toggleFavorite(symbol) {
@@ -453,20 +454,26 @@
         `;
                 grid.appendChild(card);
                 var symbolParam = stock.symbol;
+                var timezone = currentCountry === 'India' ? 'Asia/Kolkata' : 'America/New_York';
                 new TradingView.widget({
                     container_id: 'tv-' + stock.symbol,
                     width: '100%',
                     height: 320,
                     symbol: symbolParam,
                     interval: 'D',
-                    timezone: 'Etc/UTC',
+                    timezone: timezone,
                     theme: 'dark',
                     style: '2',
                     locale: 'en',
                     toolbar_bg: '#1e293b',
                     enable_publishing: false,
                     hide_top_toolbar: false,
-                    allow_symbol_change: false
+                    allow_symbol_change: false,
+                    studies: [
+                        'MASimple@tv-basicstudies',
+                        'RSI@tv-basicstudies',
+                        'MACD@tv-basicstudies'
+                    ]
                 });
             });
             initIcons();
