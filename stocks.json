@@ -43,6 +43,12 @@
       "name": "TCS",
       "favorite": false,
       "addedAt": "2024-03-20T10:05:00.000Z"
+    },
+    {
+      "symbol": "TCS1",
+      "name": "TCS1",
+      "favorite": true,
+      "addedAt": "2024-03-20T10:05:00.000Z"
     }
   ]
 }
